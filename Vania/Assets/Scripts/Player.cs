@@ -9,13 +9,15 @@ public class Player : MonoBehaviour
     [SerializeField] float runSpeed = 5f;
     [SerializeField] float jumpForce = 5f;
     [SerializeField] float climbSpeed = 5f;
+    Vector3 localScale;
     
 
     // Chache
     Rigidbody2D myRigidbody;
     SpriteRenderer mySpriteRenderer;
     Animator myAnimator;
-    Collider2D my2dCollider;
+    CapsuleCollider2D myBodyCollider;
+    BoxCollider2D myFeet;
     float playerGravity;
 
     //State
@@ -28,10 +30,12 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        localScale = transform.localScale;
         myRigidbody = GetComponent<Rigidbody2D>();
         mySpriteRenderer = GetComponent<SpriteRenderer>();
         myAnimator = GetComponent<Animator>();
-        my2dCollider = GetComponent<Collider2D>();
+        myBodyCollider = GetComponent<CapsuleCollider2D>();
+        myFeet = GetComponent<BoxCollider2D>();
         playerGravity = myRigidbody.gravityScale;
     }
 
@@ -39,10 +43,39 @@ public class Player : MonoBehaviour
     void Update()
     {
 
+        if (!isAlive){ return; }
         Run();
         FlipSprite();
         Jump();
         ClimbLadder();
+        Die();
+        
+
+
+        // animation control center
+
+        bool playerHasPositiveVerticalSpeed = Mathf.Abs(myRigidbody.velocity.y) > Mathf.Epsilon; // positive y velocity
+        bool playerHasNegativeVerticalSpeed = Mathf.Abs(myRigidbody.velocity.y) < Mathf.Epsilon; //bool playerHasNegativeVerticalSpeed = Mathf.Abs(myRigidbody.velocity.y) < Mathf.Epsilon; // negative y velocity
+
+        if (myRigidbody.velocity.y > -0.1 && myRigidbody.velocity.y < 0.1) // if the player is not moving vertically
+        {
+            myAnimator.SetBool("Jumping", false);
+            myAnimator.SetBool("Falling", false);
+        }
+
+        if (myRigidbody.velocity.y > 0.1)
+        {
+            myAnimator.SetBool("Jumping", true);
+        }
+
+        if (myRigidbody.velocity.y < -0.1)
+        {
+            myAnimator.SetBool("Jumping", false);
+            myAnimator.SetBool("Falling", true);
+        }
+        
+        
+        
 
     }
 
@@ -53,8 +86,6 @@ public class Player : MonoBehaviour
         myRigidbody.velocity = playerVelocity;
 
         bool playerHasHorizontalSpeed = Mathf.Abs(myRigidbody.velocity.x) > Mathf.Epsilon;
-
-     
         myAnimator.SetBool("Running", playerHasHorizontalSpeed);
        
    
@@ -62,12 +93,14 @@ public class Player : MonoBehaviour
 
     private void Jump()
     {
-        if (my2dCollider.IsTouchingLayers(LayerMask.GetMask("Ground"))) { 
+        if (myFeet.IsTouchingLayers(LayerMask.GetMask("Ground"))) { 
             if (CrossPlatformInputManager.GetButtonDown("Jump"))
             {
                 Vector2 jumpVelocityToAdd = new Vector2(0f, jumpForce);
                 myRigidbody.velocity += jumpVelocityToAdd;
+
             }
+
         }
     }
 
@@ -75,7 +108,7 @@ public class Player : MonoBehaviour
     {
         // check so that we're touching the ladder
         var tempGravity = myRigidbody.gravityScale;
-        if (my2dCollider.IsTouchingLayers(LayerMask.GetMask("Ladder")))
+        if (myFeet.IsTouchingLayers(LayerMask.GetMask("Ladder")))
         {
             // I think this covers the climbing part
             float controlThrow = CrossPlatformInputManager.GetAxis("Vertical"); // Value is between -1 & +1 // Vertical instead of horizontal
@@ -97,6 +130,15 @@ public class Player : MonoBehaviour
 
     }
 
+    private void Die()
+    {
+        if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemy")))
+        {
+            myAnimator.SetTrigger("Dying");
+            isAlive = false;
+            
+        }
+    } 
     private void FlipSprite()
     {
 
@@ -104,13 +146,8 @@ public class Player : MonoBehaviour
 
         if (playerHasHorizontalSpeed)
         {
-            transform.localScale = new Vector2(Mathf.Sign(myRigidbody.velocity.x), 1f);
+            transform.localScale = new Vector2(Mathf.Sign(myRigidbody.velocity.x), 1f); // this is the old way
+            
         }
-    
-
- 
-
-
-
     }
 }
