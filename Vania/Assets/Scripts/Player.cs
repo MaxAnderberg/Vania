@@ -49,13 +49,11 @@ public class Player : MonoBehaviour
         Jump();
         ClimbLadder();
         Die();
+        TakeTrapDamage();
         
 
 
         // animation control center
-
-        bool playerHasPositiveVerticalSpeed = Mathf.Abs(myRigidbody.velocity.y) > Mathf.Epsilon; // positive y velocity
-        bool playerHasNegativeVerticalSpeed = Mathf.Abs(myRigidbody.velocity.y) < Mathf.Epsilon; //bool playerHasNegativeVerticalSpeed = Mathf.Abs(myRigidbody.velocity.y) < Mathf.Epsilon; // negative y velocity
 
         if (myRigidbody.velocity.y > -0.1 && myRigidbody.velocity.y < 0.1) // if the player is not moving vertically
         {
@@ -130,12 +128,19 @@ public class Player : MonoBehaviour
 
     }
 
+    private void TakeTrapDamage()
+    {
+        if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Traps")))
+        {
+            Debug.Log("OH YOU ARE TAKING DAMAGE!!");
+        }
+    }
     private void Die()
     {
         if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemy")))
         {
             myAnimator.SetTrigger("Dying");
-            isAlive = false;
+            isAlive = false; 
             
         }
     } 
