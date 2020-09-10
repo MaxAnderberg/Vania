@@ -133,6 +133,7 @@ public class Player : MonoBehaviour
         if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Traps")))
         {
             Debug.Log("OH YOU ARE TAKING DAMAGE!!");
+            // call takePlayerHealth here pass in int as the damage
         }
     }
     private void Die()
@@ -140,8 +141,9 @@ public class Player : MonoBehaviour
         if (myBodyCollider.IsTouchingLayers(LayerMask.GetMask("Enemy")))
         {
             myAnimator.SetTrigger("Dying");
-            isAlive = false; 
-            
+            isAlive = false; // Need to make a life class and attach it on the player
+            // call takePlayerHealth here pass in int as the damage
+
         }
     } 
     private void FlipSprite()
