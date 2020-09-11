@@ -7,34 +7,42 @@ public class LevelExit : MonoBehaviour
 {
 
     //config 
-    [SerializeField] float levelLoadDelay = 2f;
+    [SerializeField] float levelLoadDelay = 4f;
 
     //chache
     Scene scene;
-    int currentSceneIndex;
+    
 
     Animator myAnimator;
     private void Start()
     {
-        Scene scene = SceneManager.GetActiveScene();
-        currentSceneIndex = scene.buildIndex;
-        Debug.Log("On start the scene is:  "+currentSceneIndex);
+       
+        
+        
         myAnimator = GetComponent<Animator>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        currentSceneIndex++;
+        
         StartCoroutine(LoadNextLevel());
-        Debug.Log("Loading scene: " + currentSceneIndex);
+        
     }
 
     IEnumerator LoadNextLevel()
     {
 
+        // maybe freeze the time here as well. 
+        
         myAnimator.SetTrigger("Winning");
+        Time.timeScale = 0.4f;
+
         yield return new WaitForSeconds(levelLoadDelay);
+        
+        Time.timeScale = 1f;
+
         //load next scene
-        SceneManager.LoadScene(currentSceneIndex);
+        var currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(currentSceneIndex++);
     }
 }
