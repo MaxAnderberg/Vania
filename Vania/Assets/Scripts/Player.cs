@@ -53,6 +53,7 @@ public class Player : MonoBehaviour
         
 
 
+
         // animation control center
 
         if (myRigidbody.velocity.y > -0.1 && myRigidbody.velocity.y < 0.1) // if the player is not moving vertically
@@ -142,10 +143,13 @@ public class Player : MonoBehaviour
         {
             myAnimator.SetTrigger("Dying");
             isAlive = false; // Need to make a life class and attach it on the player
-            // call takePlayerHealth here pass in int as the damage
+            FindObjectOfType<GameSession>().ProcessPlayerDeath();
 
         }
-    } 
+    }
+    
+
+
     private void FlipSprite()
     {
 
